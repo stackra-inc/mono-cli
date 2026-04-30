@@ -22,6 +22,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "clean": "rm -rf dist node_modules/.cache",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm run build",
     "release": "pnpm publish --access public --no-git-checks"
   },
@@ -59,16 +62,25 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
+    "@stackra/eslint-config": "^1.0.9",
     "@stackra/tsup-config": "^1.0.9",
     "@stackra/typescript-config": "^1.0.10",
     "@types/node": "^25.6.0",
+    "eslint": "^9.28.0",
     "prettier": "^3.8.3",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
   },
   "engines": {
     "node": ">=22",
     "pnpm": ">=10"
+  },
+  "pnpm": {
+    "overrides": {
+      "eslint": "^9.28.0",
+      "@eslint/js": "^9.28.0"
+    }
   },
   "packageManager": "pnpm@10.33.2",
   "publishConfig": {
