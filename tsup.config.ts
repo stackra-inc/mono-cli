@@ -7,9 +7,9 @@
 import { basePreset as preset } from '@stackra/tsup-config';
 
 export default {
+  ...preset,
   platform: 'node',
   banner: {
     js: '#!/usr/bin/env node',
   },
-  ...preset,
 };

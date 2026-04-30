@@ -1,5 +1,13 @@
 # @stackra/mono-cli
 
+## 1.0.1 — 2026-04-30
+
+### Fixed
+
+- 🐛 **Shebang fix** — `#!/usr/bin/env node` was being overwritten by the
+  tsup-config banner. Fixed tsup.config.ts spread order so shebang comes first.
+  This fixes `mono` not working when installed globally via `npm install -g`.
+
 ## 1.0.0 — 2026-04-30
 
 ### Added
