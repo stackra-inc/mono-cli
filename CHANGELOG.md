@@ -12,13 +12,23 @@
 - 📊 **StatusCommand** — workspace overview with git status
 - 🧹 **CleanCommand** — universal cleanup with interactive mode picker
 - 🔨 **BuildCommand** — turbo build proxy across repos
+- ▶️ **RunCommand** — generic turbo task proxy with interactive script picker
+- ✨ **FormatCommand** — prettier across repos
+- 📊 **GitStatusCommand** — git status across all repos
+- 📤 **GitPushCommand** — commit and push across repos
+- 🕸️ **GraphCommand** — dependency graph generation (dot, json, html)
+- 🏗️ **CreateCommand** — interactive app/package scaffolding (Vite, Next.js,
+  Expo, Laravel)
+- 🔐 **SecretCommand** — manage secrets in ~/.stackra/secrets.json (set, get,
+  list, delete, use, --from-gh, --from-glab)
+- 📦 **PublishCommand** — detect changed packages, build, publish to npm
+- 🔄 **SyncCommand** — sync configs, composer path repos, turbo deps across repos
+- ⬆️ **UpgradeCommand** — upgrade dependencies (pnpm update or ncu -u)
 - ℹ️ **AboutCommand** — CLI info, registered commands, flags
-- 🌐 **Go ecosystem** — auto-detection via `go.mod`
+- 🔌 **CliModule.register()** — custom commands via mono.config.ts in each repo
+- 🌐 **Ecosystem detection** — Node, PHP, React Native, Python, Go
 - 🎛️ **Global flags** — `--json`, `--no-interactive`, `--repo`, `--verbose`
-- 📋 **Platform command mapping** — ecosystem-specific command translations
-- 🏷️ **@Command() decorator** — metadata (name, description, emoji, category,
-  aliases, args)
-- 📐 **Architecture steering file** — blueprint for CLI design and phases
+- 📋 **Script discovery** — scans package.json scripts for interactive picker
 - 🔧 **CI/CD** — GitHub Actions for typecheck, build, test, lint, format, publish
 - 📦 **Dependabot** — auto-update dependencies
 
