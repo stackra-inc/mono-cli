@@ -32,6 +32,9 @@ importers:
       glob:
         specifier: 13.0.6
         version: 13.0.6
+      jiti:
+        specifier: ^2.6.1
+        version: 2.6.1
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -54,9 +57,6 @@ importers:
       eslint-plugin-turbo:
         specifier: ^2.9.6
         version: 2.9.6(eslint@9.39.4(jiti@2.6.1))(turbo@2.9.6)
-      jiti:
-        specifier: ^2.6.1
-        version: 2.6.1
       prettier:
         specifier: ^3.8.3
         version: 3.8.3

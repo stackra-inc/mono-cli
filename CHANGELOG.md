@@ -1,5 +1,12 @@
 # @stackra/mono-cli
 
+## 1.2.1 — 2026-04-30
+
+### Fixed
+
+- 🐛 **jiti as runtime dependency** — moved jiti from devDependencies to
+  dependencies. It's needed at runtime to load mono.config.ts files.
+
 ## 1.2.0 — 2026-04-30
 
 ### Added
