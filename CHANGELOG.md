@@ -1,5 +1,14 @@
 # @stackra/mono-cli
 
+## 1.2.2 — 2026-04-30
+
+### Fixed
+
+- 🐛 **DI constructor injection** — added `@swc/core` so tsup emits decorator
+  metadata correctly. Fixes `SecretStore` not being injected into `SecretCommand`.
+  Without SWC, esbuild skips `emitDecoratorMetadata` and reflect-metadata
+  can't resolve constructor parameter types.
+
 ## 1.2.1 — 2026-04-30
 
 ### Fixed

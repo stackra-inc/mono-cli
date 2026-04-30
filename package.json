@@ -1,6 +1,6 @@
 {
   "name": "@stackra/mono-cli",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Universal CLI for managing Stackra monorepos — clean, build, lint, scaffold, sync, and publish across all ecosystems.",
   "type": "module",
   "bin": {
@@ -66,6 +66,7 @@
     "@stackra/eslint-config": "^1.0.9",
     "@stackra/tsup-config": "^1.0.9",
     "@stackra/typescript-config": "^1.0.10",
+    "@swc/core": "^1.15.32",
     "@types/node": "^25.6.0",
     "eslint": "^9.28.0",
     "eslint-plugin-turbo": "^2.9.6",
