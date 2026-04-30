@@ -19,10 +19,13 @@
 - 🏷️ **@Command() decorator** — metadata (name, description, emoji, category,
   aliases, args)
 - 📐 **Architecture steering file** — blueprint for CLI design and phases
+- 🔧 **CI/CD** — GitHub Actions for typecheck, build, test, lint, format, publish
+- 📦 **Dependabot** — auto-update dependencies
 
 ### Fixed
 
 - 🔧 **Engines** — standardized to `node>=22`, `pnpm>=10`
+- 🔧 **ESLint** — pinned to v9 with jiti for TS config loading
 
 ## 0.1.0 — 2026-04-30
 

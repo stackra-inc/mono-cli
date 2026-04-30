@@ -83,6 +83,7 @@ export type CommandCategory =
  * @returns Class decorator
  */
 export function Command(options: CommandOptions): ClassDecorator {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   return (target: Function) => {
     Reflect.defineMetadata(COMMAND_METADATA, options, target);
   };
@@ -94,6 +95,9 @@ export function Command(options: CommandOptions): ClassDecorator {
  * @param target - The class constructor
  * @returns Command options, or undefined if not decorated
  */
-export function getCommandMetadata(target: Function): CommandOptions | undefined {
+export function getCommandMetadata(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  target: Function
+): CommandOptions | undefined {
   return Reflect.getMetadata(COMMAND_METADATA, target);
 }

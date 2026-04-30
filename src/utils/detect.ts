@@ -23,7 +23,7 @@ import type { Ecosystem, MonorepoInfo } from '@/types';
  * @returns Absolute path to the workspace root
  */
 export function findWorkspaceRoot(): string {
-  let dir = process.cwd();
+  const dir = process.cwd();
 
   // If we're inside a monorepo, go up one level
   if (existsSync(join(dir, 'turbo.json')) && existsSync(join(dir, 'package.json'))) {
