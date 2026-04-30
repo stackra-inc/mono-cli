@@ -1,5 +1,19 @@
 # @stackra/mono-cli
 
+## 1.2.0 — 2026-04-30
+
+### Added
+
+- 🔧 **jiti-based config loading** — loads `mono.config.ts` files using jiti
+  (same approach as Next.js for `next.config.ts`). No Node.js warnings, no
+  `"type": "module"` requirement. Supports `.ts`, `.mjs`, and `.js`.
+- 📁 **Config files back to `.ts`** — `mono.config.ts` works natively now
+
+### Changed
+
+- ♻️ **Module loader rewritten** — uses `createJiti()` instead of dynamic
+  `import()` for TypeScript config file loading
+
 ## 1.1.0 — 2026-04-30
 
 ### Added

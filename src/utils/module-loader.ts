@@ -1,9 +1,10 @@
 /**
  * Module loader — discovers and loads mono.config.ts files.
  *
- * Scans each discovered monorepo for a `mono.config.ts` or
- * `mono.config.js` file and dynamically imports it to load
- * custom command registrations.
+ * Uses `jiti` to transpile TypeScript config files on the fly,
+ * just like Next.js does with `next.config.ts`. This avoids
+ * Node.js MODULE_TYPELESS_PACKAGE_JSON warnings and supports
+ * `.ts`, `.mjs`, and `.js` config files.
  *
  * @module utils/module-loader
  * @since 1.0.0
@@ -11,11 +12,11 @@
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { createJiti } from 'jiti';
 import type { MonoConfig, MonorepoInfo } from '@/types';
 
 /** Supported config file names in priority order. */
-const CONFIG_FILES = ['mono.config.mjs', 'mono.config.ts', 'mono.config.js'] as const;
+const CONFIG_FILES = ['mono.config.ts', 'mono.config.mjs', 'mono.config.js'] as const;
 
 /**
  * Result of loading a monorepo's config file.
@@ -28,11 +29,11 @@ export interface LoadedConfig {
 }
 
 /**
- * Discover and load mono.config.ts files from each monorepo.
+ * Discover and load mono.config files from each monorepo.
  *
  * Iterates over all discovered monorepos, checks for a config file,
- * and dynamically imports it. Repos without a config file are silently
- * skipped. Import errors are caught and logged to stderr.
+ * and loads it via jiti (TypeScript-aware). Repos without a config
+ * file are silently skipped.
  *
  * @param repos - Array of discovered monorepo info objects
  * @returns Array of successfully loaded configs
@@ -51,10 +52,11 @@ export async function loadMonoConfigs(repos: MonorepoInfo[]): Promise<LoadedConf
 }
 
 /**
- * Load a single monorepo's config file.
+ * Load a single monorepo's config file using jiti.
  *
- * Checks for `mono.config.ts` then `mono.config.js` in the repo root.
- * Uses dynamic import to load the config module.
+ * jiti transpiles TypeScript on the fly — same approach as
+ * Next.js for next.config.ts. No Node.js warnings, no
+ * "type": "module" requirement.
  *
  * @param repo - Monorepo info object
  * @returns The loaded config, or null if not found or errored
@@ -66,9 +68,14 @@ async function loadSingleConfig(repo: MonorepoInfo): Promise<MonoConfig | null> 
     if (!existsSync(configPath)) continue;
 
     try {
-      const fileUrl = pathToFileURL(configPath).href;
-      const mod = await import(fileUrl);
-      const config = mod.default ?? mod;
+      // Create a jiti instance rooted at the repo directory
+      const jiti = createJiti(repo.path, {
+        interopDefault: true,
+      });
+
+      // Load the config file — jiti handles TS transpilation
+      const mod = await jiti.import(configPath);
+      const config = (mod as Record<string, unknown>).default ?? mod;
 
       // Validate the loaded config has the expected shape
       if (isValidConfig(config)) {
