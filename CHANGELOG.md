@@ -1,5 +1,19 @@
 # @stackra/mono-cli
 
+## 1.2.3 — 2026-05-01
+
+### Fixed
+
+- 🐛 **Clean command missing nested artifacts** — `removeDirsRecursive` had two
+  bugs that caused `mono clean all` to miss `node_modules` and `dist` directories
+  inside workspace packages (`apps/*`, `packages/*/*`):
+  1. Early return after removing the root-level match — the walker never
+     continued into subdirectories to find nested matches.
+  2. The skip list (`node_modules`, `vendor`, `.git`) prevented the walker
+     from matching target directories when the target itself was a skippable
+     name (e.g., cleaning `node_modules` in `deps` mode). Fixed by separating
+     "skip traversing into" from "match as removal target."
+
 ## 1.2.2 — 2026-04-30
 
 ### Fixed

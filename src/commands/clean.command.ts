@@ -242,8 +242,8 @@ export class CleanCommand extends BaseCommand {
       try {
         const entries = readdirSync(dir);
         for (const entry of entries) {
-          // Skip traversing into these
-          if (entry === 'node_modules' || entry === 'vendor' || entry === '.git') continue;
+          // Skip traversing into these (but still match them as removal targets)
+          const isSkippable = entry === 'node_modules' || entry === 'vendor' || entry === '.git';
 
           const fullPath = join(dir, entry);
           try {
@@ -259,7 +259,7 @@ export class CleanCommand extends BaseCommand {
             } catch {
               /* skip */
             }
-          } else {
+          } else if (!isSkippable) {
             walk(fullPath, depth + 1);
           }
         }
@@ -274,7 +274,6 @@ export class CleanCommand extends BaseCommand {
       try {
         rmSync(directPath, { recursive: true, force: true });
         removed++;
-        return removed;
       } catch {
         /* fall through to recursive */
       }
