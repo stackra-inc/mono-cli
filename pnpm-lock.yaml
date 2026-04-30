@@ -15,8 +15,8 @@ importers:
         specifier: 1.3.0
         version: 1.3.0
       '@stackra/ts-container':
-        specifier: ^2.0.12
-        version: 2.0.12(react@19.2.5)
+        specifier: ^2.0.14
+        version: 2.0.14(react@19.2.5)
       chalk:
         specifier: 5.6.2
         version: 5.6.2
@@ -1085,16 +1085,28 @@ packages:
       eslint: ^9.28.0
       typescript: '>=5.0.0 || >=6.0.0'
 
-  '@stackra/ts-container@2.0.12':
+  '@stackra/ts-container@2.0.14':
     resolution:
       {
-        integrity: sha512-rTlc78kbRadXVB2WavNlvJ7PFw36Uxf8Ttp2jLMQN9AQ2YWVV58QP91yDvuntZIiDtGNbdKzFhq1pNw0ur8nsQ==,
+        integrity: sha512-o+t7xwHeYtPbwye4B43VIMgIwu1ysC8DRHLPNIJavsGNis3T9aHMLJR0sEaZWyqJLOuKtTn/QriEUbsopeERgQ==,
       }
-    engines: { node: '>=22', pnpm: '>=9.0.0' }
+    engines: { node: '>=22', pnpm: '>=10' }
     peerDependencies:
-      react: ^18.0.0 || ^19.0.0
+      react: ^19.2.5
     peerDependenciesMeta:
       react:
+        optional: true
+
+  '@stackra/ts-support@2.6.2':
+    resolution:
+      {
+        integrity: sha512-5jndAcmGfY7mhAh+OVRWKeN6cQr+uGSW9fXmKlZUKdOTMek1Lp2pZoIZpQMujWphEAVl5AU3sO2v0v3ho+YFig==,
+      }
+    engines: { node: '>=22', pnpm: '>=10' }
+    peerDependencies:
+      '@stackra/ts-container': ^2.0.12
+    peerDependenciesMeta:
+      '@stackra/ts-container':
         optional: true
 
   '@stackra/tsup-config@1.0.9':
@@ -1423,6 +1435,12 @@ packages:
         integrity: sha512-+W/5efTR7y5HRD7gACw9yQjqMVvEMLBHmboM/kPWam+H+Hmyrgjh6YncVKK122YZkXrLudzTuAukUw9FnMf7IQ==,
       }
     engines: { node: 10.* || >= 12.* }
+
+  collect.js@4.36.1:
+    resolution:
+      {
+        integrity: sha512-jd97xWPKgHn6uvK31V6zcyPd40lUJd7gpYxbN2VOVxGWO4tyvS9Li4EpsFjXepGTo2tYcOTC4a8YsbQXMJ4XUw==,
+      }
 
   color-convert@2.0.1:
     resolution:
@@ -3295,12 +3313,19 @@ snapshots:
       - supports-color
       - tsup
 
-  '@stackra/ts-container@2.0.12(react@19.2.5)':
+  '@stackra/ts-container@2.0.14(react@19.2.5)':
     dependencies:
+      '@stackra/ts-support': 2.6.2(@stackra/ts-container@2.0.14(react@19.2.5))
       '@vivtel/metadata': 1.0.5(reflect-metadata@0.2.2)
       reflect-metadata: 0.2.2
     optionalDependencies:
       react: 19.2.5
+
+  '@stackra/ts-support@2.6.2(@stackra/ts-container@2.0.14(react@19.2.5))':
+    dependencies:
+      collect.js: 4.36.1
+    optionalDependencies:
+      '@stackra/ts-container': 2.0.14(react@19.2.5)
 
   '@stackra/tsup-config@1.0.9(tsup@8.5.1(jiti@2.6.1)(postcss@8.5.12)(typescript@6.0.3))':
     dependencies:
@@ -3472,6 +3497,8 @@ snapshots:
       string-width: 4.2.3
     optionalDependencies:
       '@colors/colors': 1.5.0
+
+  collect.js@4.36.1: {}
 
   color-convert@2.0.1:
     dependencies:

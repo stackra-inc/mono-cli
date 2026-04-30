@@ -1,5 +1,13 @@
 # @stackra/mono-cli
 
+## 1.0.2 — 2026-04-30
+
+### Fixed
+
+- 🐛 **Remove React dependency** — upgraded `@stackra/ts-container` to v2.0.14
+  which splits React bindings into a separate `/react` entry point. The CLI
+  no longer requires React to be installed.
+
 ## 1.0.1 — 2026-04-30
 
 ### Fixed
