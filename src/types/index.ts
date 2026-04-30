@@ -5,7 +5,7 @@
  * and configuration interfaces used throughout the CLI.
  *
  * @module types
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 // ============================================================================

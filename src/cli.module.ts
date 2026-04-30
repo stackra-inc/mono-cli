@@ -6,7 +6,7 @@
  * registers additional commands.
  *
  * @module cli.module
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @example
  * ```typescript

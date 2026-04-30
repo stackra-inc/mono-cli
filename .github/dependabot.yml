@@ -1,0 +1,33 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    assignees:
+      - akouta
+    groups:
+      stackra:
+        patterns:
+          - "@stackra/*"
+      dev-dependencies:
+        dependency-type: development
+        exclude-patterns:
+          - "@stackra/*"
+      production-dependencies:
+        dependency-type: production
+        exclude-patterns:
+          - "@stackra/*"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"

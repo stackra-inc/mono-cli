@@ -5,7 +5,7 @@
  * helpers. Respects --json and --no-interactive flags.
  *
  * @module utils/ui
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import chalk from "chalk";

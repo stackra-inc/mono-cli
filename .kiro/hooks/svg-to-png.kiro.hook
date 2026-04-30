@@ -1,0 +1,13 @@
+{
+  "name": "SVG to PNG",
+  "version": "1.0.0",
+  "description": "Auto-generate banner.png when banner.svg is edited",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [".github/assets/banner.svg"]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npx @svgr/cli --no-svgo .github/assets/banner.svg | npx sharp-cli -i .github/assets/banner.svg -o .github/assets/banner.png --width 1200 2>/dev/null || npx convert-svg-to-png .github/assets/banner.svg --width 1200 2>/dev/null || echo 'Install sharp-cli or convert-svg-to-png to auto-generate PNG'"
+  }
+}

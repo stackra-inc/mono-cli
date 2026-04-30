@@ -10,7 +10,7 @@
  * and @Injectable() enables constructor injection of services.
  *
  * @module commands/base
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @example
  * ```typescript

@@ -6,7 +6,7 @@
  * Handles the full lifecycle: parse → resolve → execute.
  *
  * @module cli.runner
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import { Command as Program } from "commander";
@@ -52,7 +52,7 @@ export async function bootstrap(): Promise<void> {
   program
     .name("mono")
     .description("⬡ Stackra — Universal Monorepo CLI")
-    .version("0.1.0", "-v, --version")
+    .version("1.0.0", "-v, --version")
     .option("--json", "Output results as JSON", false)
     .option("--no-interactive", "Disable interactive prompts (for CI)")
     .option("-r, --repo <repos...>", "Target specific repo(s)")

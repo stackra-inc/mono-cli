@@ -1,6 +1,6 @@
 {
   "name": "@stackra/mono-cli",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Universal CLI for managing Stackra monorepos — clean, build, lint, scaffold, sync, and publish across all ecosystems.",
   "type": "module",
   "bin": {
@@ -56,7 +56,6 @@
     "commander": "14.0.3",
     "execa": "9.6.1",
     "glob": "13.0.6",
-    "react": "^19.2.5",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
@@ -68,7 +67,7 @@
     "typescript": "^6.0.3"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=22",
     "pnpm": ">=10"
   },
   "packageManager": "pnpm@10.33.2",

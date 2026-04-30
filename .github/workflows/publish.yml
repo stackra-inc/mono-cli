@@ -1,0 +1,399 @@
+# =============================================================================
+# Publish — @stackra/mono-cli
+#
+# Triggered by:
+#   - Pushing a semver tag  (v1.2.3 / v1.2.3-beta.0)
+#   - Manual workflow_dispatch with optional dry-run
+#
+# Required secrets:
+#   STACKRA_NPM_TOKEN          — npm automation token (Granular: read+write packages)
+#
+# Optional secrets (Slack notification):
+#   STACKRA_SLACK_WEBHOOK_URL  — Incoming Webhook URL for release announcements
+#
+# Flow:
+#   validate ──► quality ──► publish ──► release ──► notify (optional)
+#
+# Notes:
+#   - npm provenance is enabled (--provenance) for supply-chain transparency
+#   - GitHub Release is created automatically from CHANGELOG.md
+#   - Slack message is skipped if STACKRA_SLACK_WEBHOOK_URL secret is not set
+# =============================================================================
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — skip npm publish and GitHub Release"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Validate — confirm tag matches package.json version
+  # ---------------------------------------------------------------------------
+  validate:
+    name: ✅ Validate
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pkg.outputs.version }}
+      tag: ${{ steps.tag.outputs.tag }}
+      is_prerelease: ${{ steps.tag.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: 📋 Read package version
+        id: pkg
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: 🏷️ Parse tag
+        id: tag
+        run: |
+          TAG="${GITHUB_REF_NAME:-v${{ steps.pkg.outputs.version }}}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          # Pre-release if tag contains a hyphen after the version numbers
+          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: � Verify tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          PKG_VERSION="${{ steps.pkg.outputs.version }}"
+          TAG_VERSION="${{ steps.tag.outputs.tag }}"
+          EXPECTED="v${PKG_VERSION}"
+          if [ "$TAG_VERSION" != "$EXPECTED" ]; then
+            echo "❌ Tag '$TAG_VERSION' does not match package.json version '$EXPECTED'"
+            exit 1
+          fi
+          echo "✅ Tag matches package version: $TAG_VERSION"
+
+  # ---------------------------------------------------------------------------
+  # Quality gate — typecheck + build + test must all pass before publish
+  # ---------------------------------------------------------------------------
+  quality:
+    name: 🔬 Quality Gate
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+
+      - name: 🔷 Type check
+        run: pnpm typecheck
+
+      - name: 🔨 Build
+        run: pnpm build
+
+      - name: 🧪 Test
+        run: pnpm test
+
+      - name: 📤 Upload dist artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-publish-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Publish to npm
+  # ---------------------------------------------------------------------------
+  publish:
+    name: 🚀 Publish to npm
+    runs-on: ubuntu-latest
+    needs: [validate, quality]
+    if: ${{ github.event.inputs.dry_run != 'true' }}
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/@stackra/mono-cli
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          node-version: "22"
+
+      - name: 📥 Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-publish-${{ github.sha }}
+          path: dist/
+
+      - name: 🔧 Configure npm registry
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: 🔍 Check if version already published
+        id: check_version
+        run: |
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if npm view "${PKG_NAME}@${PKG_VERSION}" version 2>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️ ${PKG_NAME}@${PKG_VERSION} is already published — skipping publish"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ ${PKG_NAME}@${PKG_VERSION} not yet published"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.STACKRA_NPM_TOKEN }}
+
+      - name: 🚀 Publish
+        if: steps.check_version.outputs.exists == 'false'
+        run: pnpm publish --access public --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.STACKRA_NPM_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # Create GitHub Release
+  # ---------------------------------------------------------------------------
+  release:
+    name: � GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, publish]
+    if: ${{ github.event.inputs.dry_run != 'true' && startsWith(github.ref, 'refs/tags/') }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: 📝 Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          # Extract the block between the first ## heading and the next one
+          awk "/^## ${VERSION}|^## \[${VERSION}\]/{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md \
+            | sed '/^[[:space:]]*$/d' > release_body.md
+          # Fallback if nothing extracted
+          if [ ! -s release_body.md ]; then
+            echo "Release v${VERSION}" > release_body.md
+          fi
+          echo "See [CHANGELOG](https://github.com/stackra-inc/mono-cli/blob/main/CHANGELOG.md) for full details." >> release_body.md
+
+      - name: 🎉 Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.validate.outputs.tag }}
+          name: "${{ needs.validate.outputs.tag }}"
+          body_path: release_body.md
+          draft: false
+          prerelease: ${{ needs.validate.outputs.is_prerelease == 'true' }}
+          generate_release_notes: false
+          make_latest: ${{ needs.validate.outputs.is_prerelease == 'false' }}
+
+  # ---------------------------------------------------------------------------
+  # Slack notification (optional — skipped if STACKRA_SLACK_WEBHOOK_URL not set)
+  # ---------------------------------------------------------------------------
+  notify:
+    name: 💬 Slack Notification
+    runs-on: ubuntu-latest
+    needs: [validate, publish, release]
+    if: |
+      always() &&
+      github.event.inputs.dry_run != 'true' &&
+      startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Check if Slack webhook is configured
+        id: check
+        run: |
+          if [ -n "${{ secrets.STACKRA_SLACK_WEBHOOK_URL }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ STACKRA_SLACK_WEBHOOK_URL not set — skipping Slack notification"
+          fi
+
+      - name: 📝 Extract release notes & metadata
+        if: steps.check.outputs.configured == 'true'
+        id: notes
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          TAG="${{ needs.validate.outputs.tag }}"
+
+          # --- Extract changelog section for this version ---
+          NOTES=$(awk "/^## ${VERSION}|^## \[${VERSION}\]/{found=1; next} found && /^## /{exit} found{print}" CHANGELOG.md \
+            | sed '/^[[:space:]]*$/d' \
+            | head -25)
+
+          if [ -z "$NOTES" ]; then
+            NOTES="No changelog entry found for ${VERSION}."
+          fi
+
+          # --- Convert GitHub-flavored markdown → Slack mrkdwn ---
+          # ### Headers → *Bold headers*
+          NOTES=$(echo "$NOTES" | sed -E 's/^###+ (.+)/*\1*/')
+          # **bold** → *bold*  (Slack uses single asterisks)
+          NOTES=$(echo "$NOTES" | sed -E 's/\*\*([^*]+)\*\*/\*\1\*/g')
+          # `code` stays as-is (Slack supports backtick code)
+          # - list items → • list items
+          NOTES=$(echo "$NOTES" | sed -E 's/^- /• /')
+          # Remove leading/trailing whitespace on lines
+          NOTES=$(echo "$NOTES" | sed -E 's/^[[:space:]]+//')
+          # Collapse continuation lines (lines starting with text after a bullet)
+          NOTES=$(echo "$NOTES" | awk '
+            /^• / { if (NR>1) printf "\n"; printf "%s", $0; next }
+            /^\*/ { if (NR>1) printf "\n"; printf "%s", $0; next }
+            /^---/ { next }
+            { printf " %s", $0 }
+            END { printf "\n" }
+          ')
+
+          # Escape for JSON (quotes → \", then join lines with \n)
+          NOTES_ESCAPED=$(echo "$NOTES" | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}' | sed 's/\\n$//')
+
+          # --- Previous tag for compare link ---
+          PREV_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | sed -n '2p')
+          if [ -n "$PREV_TAG" ]; then
+            echo "prev_tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+            echo "has_prev=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_prev=false" >> $GITHUB_OUTPUT
+          fi
+
+          # --- Commit count since previous tag ---
+          if [ -n "$PREV_TAG" ]; then
+            COMMIT_COUNT=$(git rev-list "${PREV_TAG}..${TAG}" --count 2>/dev/null || echo "?")
+          else
+            COMMIT_COUNT="?"
+          fi
+
+          # --- Short SHA ---
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+
+          # --- Pre-release label ---
+          if [ "${{ needs.validate.outputs.is_prerelease }}" = "true" ]; then
+            RELEASE_TYPE="🧪 Pre-release"
+          else
+            RELEASE_TYPE="🟢 Stable"
+          fi
+
+          echo "notes<<NOTES_EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES_ESCAPED" >> $GITHUB_OUTPUT
+          echo "NOTES_EOF" >> $GITHUB_OUTPUT
+          echo "commit_count=${COMMIT_COUNT}" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "release_type=${RELEASE_TYPE}" >> $GITHUB_OUTPUT
+
+      - name: 💬 Notify Slack — success
+        if: |
+          steps.check.outputs.configured == 'true' &&
+          needs.publish.result == 'success' &&
+          needs.release.result == 'success'
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.STACKRA_SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "✅ @stackra/mono-cli ${{ needs.validate.outputs.tag }} published to npm",
+              "blocks": [
+                {
+                  "type": "image",
+                  "image_url": "https://raw.githubusercontent.com/stackra-inc/mono-cli/main/.github/assets/banner.png",
+                  "alt_text": "@stackra/mono-cli banner"
+                },
+                {
+                  "type": "header",
+                  "text": { "type": "plain_text", "text": "📦 @stackra/mono-cli ${{ needs.validate.outputs.tag }}", "emoji": true }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Status:*\n✅ Published" },
+                    { "type": "mrkdwn", "text": "*Release Type:*\n${{ steps.notes.outputs.release_type }}" },
+                    { "type": "mrkdwn", "text": "*Version:*\n`${{ needs.validate.outputs.version }}`" },
+                    { "type": "mrkdwn", "text": "*Commits:*\n${{ steps.notes.outputs.commit_count }} since last release" }
+                  ]
+                },
+                { "type": "divider" },
+                {
+                  "type": "section",
+                  "text": { "type": "mrkdwn", "text": "*📋 Release Notes:*\n${{ steps.notes.outputs.notes }}" }
+                },
+                { "type": "divider" },
+                {
+                  "type": "actions",
+                  "elements": [
+                    { "type": "button", "text": { "type": "plain_text", "text": "📦 npm", "emoji": true }, "url": "https://www.npmjs.com/package/@stackra/mono-cli/v/${{ needs.validate.outputs.version }}" },
+                    { "type": "button", "text": { "type": "plain_text", "text": "🏷️ GitHub Release", "emoji": true }, "url": "https://github.com/stackra-inc/mono-cli/releases/tag/${{ needs.validate.outputs.tag }}" },
+                    { "type": "button", "text": { "type": "plain_text", "text": "📝 Full Changelog", "emoji": true }, "url": "https://github.com/stackra-inc/mono-cli/blob/main/CHANGELOG.md" },
+                    { "type": "button", "text": { "type": "plain_text", "text": "⚙️ Workflow Run", "emoji": true }, "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    { "type": "mrkdwn", "text": "Triggered by *${{ github.actor }}* · Commit `${{ steps.notes.outputs.short_sha }}` · <https://github.com/stackra-inc/mono-cli/compare/${{ steps.notes.outputs.prev_tag }}...${{ needs.validate.outputs.tag }}|Compare changes>" }
+                  ]
+                }
+              ]
+            }
+
+      - name: 💬 Notify Slack — failure
+        if: |
+          steps.check.outputs.configured == 'true' &&
+          (needs.publish.result == 'failure' || needs.release.result == 'failure')
+        uses: slackapi/slack-github-action@v2
+        with:
+          webhook: ${{ secrets.STACKRA_SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "❌ @stackra/mono-cli ${{ needs.validate.outputs.tag }} publish FAILED",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": { "type": "plain_text", "text": "❌ Publish Failed: @stackra/mono-cli ${{ needs.validate.outputs.tag }}", "emoji": true }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*npm publish:*\n${{ needs.publish.result == 'failure' && '❌ Failed' || '✅ OK' }}" },
+                    { "type": "mrkdwn", "text": "*GitHub Release:*\n${{ needs.release.result == 'failure' && '❌ Failed' || '✅ OK' }}" },
+                    { "type": "mrkdwn", "text": "*Version:*\n`${{ needs.validate.outputs.version }}`" },
+                    { "type": "mrkdwn", "text": "*Tag:*\n`${{ needs.validate.outputs.tag }}`" }
+                  ]
+                },
+                { "type": "divider" },
+                {
+                  "type": "actions",
+                  "elements": [
+                    { "type": "button", "text": { "type": "plain_text", "text": "🔍 View Logs", "emoji": true }, "style": "danger", "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" },
+                    { "type": "button", "text": { "type": "plain_text", "text": "🔄 Re-run Workflow", "emoji": true }, "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    { "type": "mrkdwn", "text": "Triggered by *${{ github.actor }}* · Commit `${{ steps.notes.outputs.short_sha }}`" }
+                  ]
+                }
+              ]
+            }

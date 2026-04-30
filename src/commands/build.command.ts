@@ -5,7 +5,7 @@
  * leveraging turbo's caching and parallelism.
  *
  * @module commands/build
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import * as p from "@clack/prompts";

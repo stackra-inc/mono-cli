@@ -2,7 +2,7 @@
  * Platform command mapping and emoji constants.
  *
  * @module config/platforms
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import type { Ecosystem } from "@/types";

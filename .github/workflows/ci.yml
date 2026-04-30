@@ -1,0 +1,81 @@
+# =============================================================================
+# CI — @stackra/mono-cli
+#
+# Runs on every push to main/develop and on pull requests targeting those
+# branches. Jobs run in parallel where possible; test waits for build.
+#
+# Job graph:
+#   typecheck ─┐
+#   build ─────┼─► test
+#   lint ──────┘
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  typecheck:
+    name: 🔷 Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
+
+  build:
+    name: 🔨 Build (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm build
+      - if: matrix.node == '22'
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 3
+
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm test
+
+  format:
+    name: 🎨 Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm format:check
+
+  lint:
+    name: 🔍 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/setup
+      - run: pnpm lint

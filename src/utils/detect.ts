@@ -6,7 +6,7 @@
  * composer.json, app.json, etc.).
  *
  * @module utils/detect
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";

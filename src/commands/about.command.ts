@@ -5,7 +5,7 @@
  * and all registered commands grouped by category.
  *
  * @module commands/about
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import chalk from "chalk";
@@ -45,7 +45,7 @@ export class AboutCommand extends BaseCommand {
         JSON.stringify(
           {
             name: "@stackra/mono-cli",
-            version: "0.1.0",
+            version: "1.0.0",
             root,
             repos: repos.map((r) => ({
               name: r.name,
@@ -61,7 +61,7 @@ export class AboutCommand extends BaseCommand {
     }
 
     // 🎨 Banner
-    displayBanner("v0.1.0 — Universal Monorepo CLI");
+    displayBanner("v1.0.0 — Universal Monorepo CLI");
 
     // 📊 Workspace
     header("📊 Workspace");

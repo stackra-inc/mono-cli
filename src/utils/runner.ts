@@ -5,7 +5,7 @@
  * with proper error handling, timing, and output capture.
  *
  * @module utils/runner
- * @since 0.1.0
+ * @since 1.0.0
  */
 
 import { execa, type Options as ExecaOptions } from "execa";
