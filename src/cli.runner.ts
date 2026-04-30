@@ -16,6 +16,7 @@
 import { Command as Program } from 'commander';
 import { Application } from '@stackra/ts-container';
 import type { IApplication } from '@stackra/ts-container';
+import { createRequire } from 'node:module';
 import { getCommandMetadata } from './decorators';
 import { BaseCommand } from './commands/base.command';
 import { CliModule } from './cli.module';
@@ -80,12 +81,14 @@ export async function bootstrap(): Promise<void> {
   const app: IApplication = await Application.create(CliModule);
 
   // 2. Create the Commander program
+  const require = createRequire(import.meta.url);
+  const { version } = require('../package.json') as { version: string };
   const program = new Program();
 
   program
     .name('mono')
     .description('⬡ Stackra — Universal Monorepo CLI')
-    .version('1.2.2', '-v, --version')
+    .version(version, '-v, --version')
     .option('--json', 'Output results as JSON', false)
     .option('--no-interactive', 'Disable interactive prompts (for CI)')
     .option('-r, --repo <repos...>', 'Target specific repo(s)')

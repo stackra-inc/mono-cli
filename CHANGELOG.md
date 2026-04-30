@@ -1,5 +1,13 @@
 # @stackra/mono-cli
 
+## 1.2.4 — 2026-05-01
+
+### Fixed
+
+- 🐛 **Version reporting** — `mono --version` and `mono about --json` were
+  hardcoded to old version strings. Now reads dynamically from `package.json`
+  so the reported version always matches the installed version.
+
 ## 1.2.3 — 2026-05-01
 
 ### Fixed

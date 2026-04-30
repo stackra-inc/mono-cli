@@ -11,6 +11,7 @@
  */
 
 import chalk from 'chalk';
+import { createRequire } from 'node:module';
 import { Injectable } from '@stackra/ts-container';
 
 import { Command } from '@/decorators';
@@ -44,11 +45,13 @@ export class AboutCommand extends BaseCommand {
     const repos = discoverMonorepos(root);
 
     if (opts.json) {
+      const req = createRequire(import.meta.url);
+      const { version: cliVersion } = req('../../package.json') as { version: string };
       console.log(
         JSON.stringify(
           {
             name: '@stackra/mono-cli',
-            version: '1.0.0',
+            version: cliVersion,
             root,
             repos: repos.map((r) => ({
               name: r.name,
