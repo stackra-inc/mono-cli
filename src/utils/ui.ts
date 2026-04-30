@@ -10,11 +10,7 @@
 
 import chalk from "chalk";
 import Table from "cli-table3";
-import type {
-  CommandResult,
-  MonorepoInfo,
-  GlobalOptions,
-} from "../types/index.js";
+import type { CommandResult, MonorepoInfo, GlobalOptions } from "@/types";
 
 // ============================================================================
 // Theme Colors

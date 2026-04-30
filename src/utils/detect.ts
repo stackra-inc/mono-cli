@@ -11,7 +11,7 @@
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import type { Ecosystem, MonorepoInfo } from "../types/index.js";
+import type { Ecosystem, MonorepoInfo } from "@/types";
 
 /**
  * Find the workspace root directory.
@@ -111,6 +111,11 @@ export function detectEcosystems(repoPath: string): Ecosystem[] {
     ecosystems.push("python");
   }
 
+  // Go
+  if (existsSync(join(repoPath, "go.mod"))) {
+    ecosystems.push("go");
+  }
+
   return ecosystems;
 }
 
@@ -139,7 +144,7 @@ export function readWorkspaceGlobs(repoPath: string): string[] {
       }
       if (inPackages) {
         const match = line.match(/^\s+-\s+['"]?([^'"]+)['"]?\s*$/);
-        if (match) {
+        if (match?.[1]) {
           globs.push(match[1]);
         } else if (
           line.trim() &&

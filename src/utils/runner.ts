@@ -9,7 +9,7 @@
  */
 
 import { execa, type Options as ExecaOptions } from "execa";
-import type { CommandResult, MonorepoInfo } from "../types/index.js";
+import type { CommandResult, MonorepoInfo } from "@/types";
 
 /**
  * Run a shell command in a specific directory.
@@ -28,7 +28,9 @@ export async function runCommand(
   options?: ExecaOptions,
 ): Promise<CommandResult> {
   const start = Date.now();
-  const [cmd, ...args] = command.split(" ");
+  const parts = command.split(" ");
+  const cmd = parts[0]!;
+  const args = parts.slice(1);
 
   try {
     const result = await execa(cmd, args, {
@@ -41,8 +43,8 @@ export async function runCommand(
     return {
       repo: cwd,
       success: result.exitCode === 0,
-      stdout: result.stdout,
-      stderr: result.stderr,
+      stdout: String(result.stdout ?? ""),
+      stderr: String(result.stderr ?? ""),
       exitCode: result.exitCode ?? 0,
       duration: Date.now() - start,
     };
@@ -77,7 +79,7 @@ export async function runAcrossRepos(
   const results: CommandResult[] = [];
 
   for (let i = 0; i < repos.length; i++) {
-    const repo = repos[i];
+    const repo = repos[i]!;
     onProgress?.(repo, i, repos.length);
 
     const result = await runCommand(command, repo.path);

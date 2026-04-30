@@ -1,26 +1,15 @@
 /**
- * tsup build configuration for @stackra/mono-cli.
- *
- * Produces a single ESM executable with a shebang line
- * so it can be invoked directly as `mono`.
- *
- * @module tsup.config
+ * @fileoverview tsup build configuration for @stackra/mono-cli
+ * @module @stackra/mono-cli
+ * @see https://tsup.egoist.dev/
  */
 
-import { defineConfig } from "tsup";
+import { basePreset as preset } from "@stackra/tsup-config";
 
-export default defineConfig({
-  entry: ["src/index.ts"],
-  format: ["esm"],
-  target: "es2022",
+export default {
   platform: "node",
-  dts: true,
-  clean: true,
-  splitting: false,
-  sourcemap: true,
-  minify: false,
   banner: {
     js: "#!/usr/bin/env node",
   },
-  outDir: "dist",
-});
+  ...preset,
+};

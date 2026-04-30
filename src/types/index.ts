@@ -16,7 +16,7 @@
  * Supported monorepo ecosystem types.
  * The CLI auto-detects these based on root config files.
  */
-export type Ecosystem = "node" | "php" | "react-native" | "python";
+export type Ecosystem = "node" | "php" | "react-native" | "python" | "go";
 
 /**
  * Cleanup modes supported by the universal cleanup command.
@@ -122,4 +122,88 @@ export interface ScaffoldOptions {
   description?: string;
   /** Ecosystem type */
   ecosystem: Ecosystem;
+}
+
+// ============================================================================
+// Module System (CliModule)
+// ============================================================================
+
+/**
+ * A custom command registered by a monorepo via mono.config.ts.
+ */
+export interface CustomCommand {
+  /** Command name (used as `mono <repo>:<name>`) */
+  name: string;
+  /** Human-readable description */
+  description: string;
+  /** The shell command to execute, or an async function */
+  action: string | (() => Promise<void>);
+  /** Optional aliases */
+  aliases?: string[];
+  /** Optional emoji prefix for display */
+  emoji?: string;
+}
+
+/**
+ * Configuration exported from a monorepo's mono.config.ts.
+ */
+export interface MonoConfig {
+  /** Monorepo display name */
+  name: string;
+  /** Custom commands registered by this monorepo */
+  commands: CustomCommand[];
+  /** Optional description */
+  description?: string;
+}
+
+// ============================================================================
+// Platform Command Mapping
+// ============================================================================
+
+/**
+ * Maps generic task names to ecosystem-specific commands.
+ * Used by the turbo proxy to translate `mono build` into
+ * the correct command for each ecosystem.
+ */
+export interface PlatformCommands {
+  /** Install dependencies */
+  install: string;
+  /** Build the project */
+  build: string;
+  /** Run tests */
+  test: string;
+  /** Run linter */
+  lint: string;
+  /** Fix lint issues */
+  "lint:fix": string;
+  /** Format code */
+  format: string;
+  /** Start dev server */
+  dev: string;
+  /** Clean artifacts */
+  clean: string;
+  /** Additional platform-specific commands */
+  [key: string]: string;
+}
+
+// ============================================================================
+// Secret Management
+// ============================================================================
+
+/**
+ * A stored secret entry.
+ */
+export interface SecretEntry {
+  /** Secret key name (e.g., NPM_TOKEN) */
+  key: string;
+  /** Display label (e.g., "npm - personal") */
+  label: string;
+  /** The secret value (encrypted at rest) */
+  value: string;
+  /** Whether this is the default for its key */
+  isDefault: boolean;
+  /** When the secret was stored */
+  createdAt: string;
+  /** Source of the secret (manual, gh-cli, glab-cli) */
+  source: "manual" | "gh-cli" | "glab-cli";
 }

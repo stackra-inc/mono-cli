@@ -5,8 +5,8 @@
  * @since 0.1.0
  */
 
-export { statusCommand } from "./status.js";
-export { cleanCommand } from "./clean.js";
-export { runTaskCommand } from "./run.js";
-export { gitStatusCommand, gitPushCommand } from "./git.js";
-export { graphCommand } from "./graph.js";
+export { BaseCommand } from "./base.command";
+export { StatusCommand } from "./status.command";
+export { CleanCommand } from "./clean.command";
+export { BuildCommand } from "./build.command";
+export { AboutCommand } from "./about.command";
