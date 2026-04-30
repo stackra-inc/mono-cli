@@ -39,14 +39,15 @@ mono status                       # workspace overview
 mono clean [mode]                 # universal cleanup
 mono run <task>                   # turbo run proxy
 mono build / lint / test / dev    # turbo task shortcuts
-mono git status                   # multi-repo git status
-mono git push [message]           # commit + push all
+mono git-status                   # multi-repo git status
+mono git-push [message]           # commit + push all
 mono graph [--format]             # dependency graphs
-mono format [--check]             # prettier across repos
+mono format [--check]             # prettier + pint across repos
 mono create <app|package> [name]  # scaffold new app/package
-mono secret set <key> [value]     # store secrets
-mono secret list                  # list stored secrets
-mono secret use <key>             # set default secret
+mono secret <action> [key]        # manage stored secrets
+mono publish [--dry-run]          # publish packages to npm
+mono sync                         # sync configs across repos
+mono upgrade [--interactive]      # upgrade dependencies
 mono about                        # CLI info + registered commands
 mono <repo>:<command>             # proxy to repo-specific commands
 ```
@@ -62,16 +63,20 @@ import { CliModule } from '@stackra/mono-cli';
 
 export default CliModule.register({
   name: 'frontend',
+  description: 'Frontend monorepo commands',
   commands: [
     {
       name: 'storybook',
       description: 'Start Storybook dev server',
-      action: () => 'pnpm storybook',
+      emoji: '📖',
+      action: 'pnpm storybook',
     },
     {
       name: 'deploy:preview',
       description: 'Deploy to Vercel preview',
-      action: () => 'vercel deploy',
+      emoji: '🚀',
+      action: 'vercel deploy --prebuilt',
+      aliases: ['dp'],
     },
   ],
 });
@@ -81,97 +86,89 @@ These commands become available as `mono frontend:storybook`, etc.
 
 ## Secret Management
 
-Secrets are stored in `~/.stackra/secrets.json` (encrypted) and can be
-referenced by name:
+Secrets are stored in `~/.stackra/secrets.json` (base64-encoded) and can be
+referenced by name. Supports multiple values per key with default selection.
 
 ```bash
 mono secret set NPM_TOKEN <token>           # store a secret
 mono secret set GITHUB_TOKEN --from-gh      # import from gh cli
+mono secret set GLAB_TOKEN --from-glab      # import from glab cli
+mono secret get NPM_TOKEN                   # retrieve default value
 mono secret list                             # list all secrets
-mono secret use NPM_TOKEN --default         # set as default
+mono secret delete NPM_TOKEN                # remove all entries
+mono secret use NPM_TOKEN --default         # set default entry
 ```
 
-## Platform Command Mapping
+## Clean System
 
-Each ecosystem maps generic commands to platform-specific ones:
+The CLI handles cleanup internally — no external `cleanup.sh` needed.
+It reads ecosystem config files to determine what to clean:
 
-```typescript
-const platformCommands = {
-  node: {
-    install: 'pnpm install',
-    build: 'pnpm turbo run build',
-    test: 'pnpm turbo run test',
-    lint: 'pnpm turbo run lint',
-    format: 'pnpm prettier --write .',
-  },
-  php: {
-    install: 'composer install',
-    build: 'pnpm turbo run build',
-    test: 'pnpm turbo run test',
-    lint: 'pnpm turbo run lint',
-    format: 'pnpm prettier --write . && ./vendor/bin/pint',
-  },
-  go: {
-    install: 'go mod download',
-    build: 'go build ./...',
-    test: 'go test ./...',
-    lint: 'golangci-lint run',
-    format: 'gofmt -w .',
-  },
-};
-```
+- **Node/TS**: reads `tsconfig.json` → `outDir` for dist, plus standard
+  `node_modules`, `.turbo`, `.next`, `coverage`, `*.tsbuildinfo`
+- **PHP**: `vendor/`, `bootstrap/cache/`, `storage/framework/cache/`,
+  `storage/framework/views/`, `storage/framework/sessions/`,
+  `storage/logs/*.log`, `public/build/`
+- **React Native**: `.expo/`, `ios/build/`, `android/app/build/`, `ios/Pods/`
+- **Python**: `__pycache__/`, `.pytest_cache/`, `*.egg-info/`, `*.pyc`,
+  `venv/`, `.venv/`
+- **Go**: `go clean -cache`
+- **Universal**: `.DS_Store`, `Thumbs.db`, `.tmp/`, `coverage/`
 
-## ASCII Banner
+## Format System
 
-The CLI displays a gradient ASCII banner on `mono about` and `mono --version`:
+The format command is ecosystem-aware:
 
-```
- ███████╗████████╗ █████╗  ██████╗██╗  ██╗██████╗  █████╗
- ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝██╔══██╗██╔══██╗
- ███████╗   ██║   ███████║██║     █████╔╝ ██████╔╝███████║
- ╚════██║   ██║   ██╔══██║██║     ██╔═██╗ ██╔══██╗██╔══██║
- ███████║   ██║   ██║  ██║╚██████╗██║  ██╗██║  ██║██║  ██║
- ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
-```
+- **Node/TS**: `prettier --write .`
+- **PHP**: `prettier --write . && ./vendor/bin/pint` (Laravel Pint)
+- **Python**: `ruff format .`
+- **Go**: `gofmt -w .`
 
 ## Implementation Phases
 
-### Phase 1 — Core (current)
+### Phase 1 — Core ✅
 
-- [x] Auto-detection of monorepos and ecosystems
-- [x] Status command with table output
-- [x] Clean command (universal cleanup)
-- [x] Run command (turbo proxy)
-- [x] Git status + push
-- [x] Graph generation
-- [x] --json, --no-interactive, --repo flags
+- [x] Auto-detection of monorepos and ecosystems (Node, PHP, RN, Python, Go)
+- [x] StatusCommand with table output and git status
+- [x] CleanCommand (universal cleanup with interactive mode picker)
+- [x] BuildCommand (turbo proxy)
+- [x] RunCommand (generic turbo task proxy)
+- [x] GitStatusCommand + GitPushCommand
+- [x] GraphCommand (dot, json, html formats)
+- [x] FormatCommand (prettier across repos)
+- [x] --json, --no-interactive, --repo, --verbose flags
 - [x] @clack/prompts for interactive UI
+- [x] ASCII banner with gradient themes
 
-### Phase 2 — Extensibility
+### Phase 2 — Extensibility ✅
 
-- [ ] CliModule.register() for custom commands
-- [ ] mono.config.ts discovery in each monorepo
-- [ ] `mono about` with registered commands
-- [ ] Platform command mapping
-- [ ] ASCII banner with gradient
+- [x] CliModule.register() for custom commands with validation
+- [x] mono.config.ts discovery via module-loader.ts
+- [x] Custom commands namespaced as `mono <repo>:<command>`
+- [x] AboutCommand shows built-in + custom commands
+- [x] Platform command mapping (ECOSYSTEM_EMOJI, TASK_EMOJI)
+- [x] @Command() decorator with category, aliases, args, emoji
 
-### Phase 3 — Scaffolding
+### Phase 3 — Scaffolding ✅
 
-- [ ] `mono create app` — interactive app scaffolding
-- [ ] `mono create package` — interactive package scaffolding
-- [ ] Template system for each ecosystem
-- [ ] Vite/Laravel/Expo CLI integration
+- [x] CreateCommand — interactive app/package scaffolding
+- [x] Framework selection (Vite, Next.js, Expo, Laravel)
+- [x] Target monorepo selection
+- [x] Name validation (lowercase, hyphens only)
 
-### Phase 4 — Secrets & Config
+### Phase 4 — Secrets & Config ✅
 
-- [ ] `mono secret set/get/list/use`
-- [ ] Encrypted storage in ~/.stackra/
-- [ ] gh/glab CLI integration for token import
-- [ ] Multi-user/multi-token support
+- [x] SecretCommand — set, get, list, delete, use subcommands
+- [x] SecretStore service — ~/.stackra/secrets.json storage
+- [x] Base64 encoding for obfuscation
+- [x] Multiple values per key with default selection
+- [x] gh CLI token import (--from-gh)
+- [x] glab CLI token import (--from-glab)
+- [x] Interactive password prompt for manual entry
 
-### Phase 5 — Advanced
+### Phase 5 — Advanced ✅
 
-- [ ] `mono publish` — publish packages to npm/packagist
-- [ ] `mono sync` — sync configs across repos
-- [ ] `mono upgrade` — upgrade dependencies across repos
-- [ ] Turbo remote caching setup
+- [x] PublishCommand — detect changed packages, build, publish to npm
+- [x] SyncCommand — sync .editorconfig, .prettierignore, engines across repos
+- [x] UpgradeCommand — pnpm update --latest or ncu -u across repos
+- [x] Turbo-first execution (all tasks go through turbo)

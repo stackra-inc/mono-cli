@@ -9,3 +9,5 @@ export * from './detect';
 export * from './runner';
 export * from './ui';
 export * from './banner';
+export * from './scripts';
+export * from './module-loader';

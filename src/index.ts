@@ -26,7 +26,7 @@
  */
 
 import 'reflect-metadata';
-import { bootstrap } from './cli.runner.js';
+import { bootstrap } from './cli.runner';
 
 bootstrap().catch((err) => {
   console.error('Fatal error:', err);
