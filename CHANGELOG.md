@@ -1,5 +1,14 @@
 # @stackra/mono-cli
 
+## 1.0.3 — 2026-04-30
+
+### Fixed
+
+- 🐛 **Suppress Node.js warnings** — config files renamed from `.ts` to `.mjs`
+  to prevent `MODULE_TYPELESS_PACKAGE_JSON` warnings during dynamic import.
+  Module loader now checks `.mjs` first.
+- 🔧 **ts-container v2.0.14** — no React dependency needed
+
 ## 1.0.2 — 2026-04-30
 
 ### Fixed

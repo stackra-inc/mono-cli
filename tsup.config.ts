@@ -10,6 +10,6 @@ export default {
   ...preset,
   platform: 'node',
   banner: {
-    js: '#!/usr/bin/env node',
+    js: '#!/usr/bin/env -S node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON',
   },
 };

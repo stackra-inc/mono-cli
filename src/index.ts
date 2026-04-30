@@ -26,6 +26,23 @@
  */
 
 import 'reflect-metadata';
+
+// Suppress Node.js MODULE_TYPELESS_PACKAGE_JSON warnings when loading
+// mono.config.ts files from monorepos without "type": "module".
+const _originalEmit = process.emit.bind(process);
+process.emit = function (event: string, ...args: unknown[]) {
+  if (
+    event === 'warning' &&
+    typeof args[0] === 'object' &&
+    args[0] !== null &&
+    'name' in args[0] &&
+    (args[0] as { name: string }).name === 'MODULE_TYPELESS_PACKAGE_JSON'
+  ) {
+    return false;
+  }
+  return _originalEmit(event, ...args);
+};
+
 import { bootstrap } from './cli.runner';
 
 bootstrap().catch((err) => {

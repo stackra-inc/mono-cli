@@ -15,7 +15,7 @@ import { pathToFileURL } from 'node:url';
 import type { MonoConfig, MonorepoInfo } from '@/types';
 
 /** Supported config file names in priority order. */
-const CONFIG_FILES = ['mono.config.ts', 'mono.config.js'] as const;
+const CONFIG_FILES = ['mono.config.mjs', 'mono.config.ts', 'mono.config.js'] as const;
 
 /**
  * Result of loading a monorepo's config file.
