@@ -58,20 +58,20 @@ at its root:
 
 ```typescript
 // frontend-monorepo/mono.config.ts
-import { CliModule } from "@stackra/mono-cli";
+import { CliModule } from '@stackra/mono-cli';
 
 export default CliModule.register({
-  name: "frontend",
+  name: 'frontend',
   commands: [
     {
-      name: "storybook",
-      description: "Start Storybook dev server",
-      action: () => "pnpm storybook",
+      name: 'storybook',
+      description: 'Start Storybook dev server',
+      action: () => 'pnpm storybook',
     },
     {
-      name: "deploy:preview",
-      description: "Deploy to Vercel preview",
-      action: () => "vercel deploy",
+      name: 'deploy:preview',
+      description: 'Deploy to Vercel preview',
+      action: () => 'vercel deploy',
     },
   ],
 });
@@ -98,25 +98,25 @@ Each ecosystem maps generic commands to platform-specific ones:
 ```typescript
 const platformCommands = {
   node: {
-    install: "pnpm install",
-    build: "pnpm turbo run build",
-    test: "pnpm turbo run test",
-    lint: "pnpm turbo run lint",
-    format: "pnpm prettier --write .",
+    install: 'pnpm install',
+    build: 'pnpm turbo run build',
+    test: 'pnpm turbo run test',
+    lint: 'pnpm turbo run lint',
+    format: 'pnpm prettier --write .',
   },
   php: {
-    install: "composer install",
-    build: "pnpm turbo run build",
-    test: "pnpm turbo run test",
-    lint: "pnpm turbo run lint",
-    format: "pnpm prettier --write . && ./vendor/bin/pint",
+    install: 'composer install',
+    build: 'pnpm turbo run build',
+    test: 'pnpm turbo run test',
+    lint: 'pnpm turbo run lint',
+    format: 'pnpm prettier --write . && ./vendor/bin/pint',
   },
   go: {
-    install: "go mod download",
-    build: "go build ./...",
-    test: "go test ./...",
-    lint: "golangci-lint run",
-    format: "gofmt -w .",
+    install: 'go mod download',
+    build: 'go build ./...',
+    test: 'go test ./...',
+    lint: 'golangci-lint run',
+    format: 'gofmt -w .',
   },
 };
 ```

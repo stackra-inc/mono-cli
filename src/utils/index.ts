@@ -5,7 +5,7 @@
  * @since 1.0.0
  */
 
-export * from "./detect";
-export * from "./runner";
-export * from "./ui";
-export * from "./banner";
+export * from './detect';
+export * from './runner';
+export * from './ui';
+export * from './banner';

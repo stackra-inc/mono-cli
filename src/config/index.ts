@@ -5,4 +5,4 @@
  * @since 1.0.0
  */
 
-export { ECOSYSTEM_EMOJI, TASK_EMOJI } from "./platforms";
+export { ECOSYSTEM_EMOJI, TASK_EMOJI } from './platforms';

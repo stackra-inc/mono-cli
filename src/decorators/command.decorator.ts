@@ -24,10 +24,10 @@
  * ```
  */
 
-import "reflect-metadata";
+import 'reflect-metadata';
 
 /** Metadata key for command options stored on the class. */
-export const COMMAND_METADATA = Symbol("command:metadata");
+export const COMMAND_METADATA = Symbol('command:metadata');
 
 /**
  * Options for the @Command() decorator.
@@ -65,13 +65,13 @@ export interface CommandOptions {
  * Built-in command categories for grouping in help output.
  */
 export type CommandCategory =
-  | "core"
-  | "tasks"
-  | "git"
-  | "tools"
-  | "scaffold"
-  | "secrets"
-  | "custom";
+  | 'core'
+  | 'tasks'
+  | 'git'
+  | 'tools'
+  | 'scaffold'
+  | 'secrets'
+  | 'custom';
 
 /**
  * @Command() class decorator.
@@ -94,8 +94,6 @@ export function Command(options: CommandOptions): ClassDecorator {
  * @param target - The class constructor
  * @returns Command options, or undefined if not decorated
  */
-export function getCommandMetadata(
-  target: Function,
-): CommandOptions | undefined {
+export function getCommandMetadata(target: Function): CommandOptions | undefined {
   return Reflect.getMetadata(COMMAND_METADATA, target);
 }

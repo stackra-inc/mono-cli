@@ -9,30 +9,25 @@
  * @since 1.0.0
  */
 
-import { Command as Program } from "commander";
-import { Application } from "@stackra/ts-container";
-import type { IApplication } from "@stackra/ts-container";
-import { getCommandMetadata } from "./decorators";
-import { BaseCommand } from "./commands/base.command.js";
-import { CliModule } from "./cli.module.js";
-import type { GlobalOptions } from "./types";
+import { Command as Program } from 'commander';
+import { Application } from '@stackra/ts-container';
+import type { IApplication } from '@stackra/ts-container';
+import { getCommandMetadata } from './decorators';
+import { BaseCommand } from './commands/base.command.js';
+import { CliModule } from './cli.module.js';
+import type { GlobalOptions } from './types';
 
 /**
  * All command classes registered in the CliModule.
  * Imported here so we can iterate over them to read metadata.
  */
-import { StatusCommand } from "./commands/status.command.js";
-import { CleanCommand } from "./commands/clean.command.js";
-import { BuildCommand } from "./commands/build.command.js";
-import { AboutCommand } from "./commands/about.command.js";
+import { StatusCommand } from './commands/status.command.js';
+import { CleanCommand } from './commands/clean.command.js';
+import { BuildCommand } from './commands/build.command.js';
+import { AboutCommand } from './commands/about.command.js';
 
 /** All built-in command classes. */
-const COMMAND_CLASSES = [
-  StatusCommand,
-  CleanCommand,
-  BuildCommand,
-  AboutCommand,
-] as const;
+const COMMAND_CLASSES = [StatusCommand, CleanCommand, BuildCommand, AboutCommand] as const;
 
 /**
  * Bootstrap and run the CLI.
@@ -50,13 +45,13 @@ export async function bootstrap(): Promise<void> {
   const program = new Program();
 
   program
-    .name("mono")
-    .description("⬡ Stackra — Universal Monorepo CLI")
-    .version("1.0.0", "-v, --version")
-    .option("--json", "Output results as JSON", false)
-    .option("--no-interactive", "Disable interactive prompts (for CI)")
-    .option("-r, --repo <repos...>", "Target specific repo(s)")
-    .option("--verbose", "Enable verbose output", false);
+    .name('mono')
+    .description('⬡ Stackra — Universal Monorepo CLI')
+    .version('1.0.0', '-v, --version')
+    .option('--json', 'Output results as JSON', false)
+    .option('--no-interactive', 'Disable interactive prompts (for CI)')
+    .option('-r, --repo <repos...>', 'Target specific repo(s)')
+    .option('--verbose', 'Enable verbose output', false);
 
   /**
    * Extract global options from the program.
@@ -85,9 +80,7 @@ export async function bootstrap(): Promise<void> {
         isDefault: meta.isDefault,
         hidden: meta.hidden,
       })
-      .description(
-        meta.emoji ? `${meta.emoji}  ${meta.description}` : meta.description,
-      );
+      .description(meta.emoji ? `${meta.emoji}  ${meta.description}` : meta.description);
 
     /** Register aliases. */
     if (meta.aliases) {
@@ -100,9 +93,7 @@ export async function bootstrap(): Promise<void> {
     cmd.action(async (...actionArgs: unknown[]) => {
       // Commander passes positional args then the Command object
       // We extract just the string args
-      const args = actionArgs
-        .slice(0, -1)
-        .filter((a): a is string => typeof a === "string");
+      const args = actionArgs.slice(0, -1).filter((a): a is string => typeof a === 'string');
 
       await instance.handle(args, getGlobalOpts());
     });

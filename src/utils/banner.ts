@@ -8,19 +8,19 @@
  * @since 1.0.0
  */
 
-import chalk from "chalk";
+import chalk from 'chalk';
 
 /**
  * Stackra ASCII art lines.
  * Generated from block characters for terminal display.
  */
 const BANNER_LINES = [
-  " ███████╗████████╗ █████╗  ██████╗██╗  ██╗██████╗  █████╗ ",
-  " ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝██╔══██╗██╔══██╗",
-  " ███████╗   ██║   ███████║██║     █████╔╝ ██████╔╝███████║",
-  " ╚════██║   ██║   ██╔══██║██║     ██╔═██╗ ██╔══██╗██╔══██║",
-  " ███████║   ██║   ██║  ██║╚██████╗██║  ██╗██║  ██║██║  ██║",
-  " ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝",
+  ' ███████╗████████╗ █████╗  ██████╗██╗  ██╗██████╗  █████╗ ',
+  ' ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝██╔══██╗██╔══██╗',
+  ' ███████╗   ██║   ███████║██║     █████╔╝ ██████╔╝███████║',
+  ' ╚════██║   ██║   ██╔══██║██║     ██╔═██╗ ██╔══██╗██╔══██║',
+  ' ███████║   ██║   ██║  ██║╚██████╗██║  ██╗██║  ██║██║  ██║',
+  ' ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝',
 ];
 
 /**
@@ -51,7 +51,7 @@ export function displayBanner(subtitle?: string): void {
   const themeName = themeNames[Math.floor(Math.random() * themeNames.length)]!;
   const gradient = GRADIENTS[themeName]!;
 
-  console.log("");
+  console.log('');
 
   for (let i = 0; i < BANNER_LINES.length; i++) {
     const color = gradient[i % gradient.length];
@@ -59,11 +59,11 @@ export function displayBanner(subtitle?: string): void {
   }
 
   if (subtitle) {
-    console.log("");
+    console.log('');
     console.log(chalk.dim(`  ${subtitle}`));
   }
 
-  console.log("");
+  console.log('');
 }
 
 /**
@@ -75,6 +75,6 @@ export function displayBanner(subtitle?: string): void {
  */
 export function displayCompactHeader(version: string): void {
   console.log(
-    `\n  ${chalk.hex("#818cf8").bold("⬡ Stackra")} ${chalk.dim(`v${version}`)} ${chalk.dim("— Universal Monorepo CLI")}\n`,
+    `\n  ${chalk.hex('#818cf8').bold('⬡ Stackra')} ${chalk.dim(`v${version}`)} ${chalk.dim('— Universal Monorepo CLI')}\n`
   );
 }

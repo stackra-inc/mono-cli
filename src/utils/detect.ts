@@ -9,9 +9,9 @@
  * @since 1.0.0
  */
 
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
-import type { Ecosystem, MonorepoInfo } from "@/types";
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import type { Ecosystem, MonorepoInfo } from '@/types';
 
 /**
  * Find the workspace root directory.
@@ -26,16 +26,11 @@ export function findWorkspaceRoot(): string {
   let dir = process.cwd();
 
   // If we're inside a monorepo, go up one level
-  if (
-    existsSync(join(dir, "turbo.json")) &&
-    existsSync(join(dir, "package.json"))
-  ) {
-    const parent = resolve(dir, "..");
+  if (existsSync(join(dir, 'turbo.json')) && existsSync(join(dir, 'package.json'))) {
+    const parent = resolve(dir, '..');
     const siblings = readdirSync(parent).filter((entry) => {
       const entryPath = join(parent, entry);
-      return (
-        statSync(entryPath).isDirectory() && existsSync(join(entryPath, ".git"))
-      );
+      return statSync(entryPath).isDirectory() && existsSync(join(entryPath, '.git'));
     });
 
     if (siblings.length > 1) {
@@ -62,37 +57,35 @@ export function detectEcosystems(repoPath: string): Ecosystem[] {
   const ecosystems: Ecosystem[] = [];
 
   // Node / TypeScript
-  if (existsSync(join(repoPath, "package.json"))) {
-    ecosystems.push("node");
+  if (existsSync(join(repoPath, 'package.json'))) {
+    ecosystems.push('node');
   }
 
   // PHP / Laravel
-  if (existsSync(join(repoPath, "composer.json"))) {
-    ecosystems.push("php");
+  if (existsSync(join(repoPath, 'composer.json'))) {
+    ecosystems.push('php');
   }
 
   // React Native (check for expo in package.json or app.json in apps/)
-  if (existsSync(join(repoPath, "package.json"))) {
+  if (existsSync(join(repoPath, 'package.json'))) {
     try {
-      const pkg = JSON.parse(
-        readFileSync(join(repoPath, "package.json"), "utf8"),
-      );
+      const pkg = JSON.parse(readFileSync(join(repoPath, 'package.json'), 'utf8'));
       const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
-      if (allDeps["expo"] || allDeps["react-native"]) {
-        ecosystems.push("react-native");
+      if (allDeps['expo'] || allDeps['react-native']) {
+        ecosystems.push('react-native');
       }
     } catch {
       /* ignore parse errors */
     }
 
     // Also check for app.json in apps/
-    if (existsSync(join(repoPath, "apps"))) {
+    if (existsSync(join(repoPath, 'apps'))) {
       try {
-        const apps = readdirSync(join(repoPath, "apps"));
+        const apps = readdirSync(join(repoPath, 'apps'));
         for (const app of apps) {
-          if (existsSync(join(repoPath, "apps", app, "app.json"))) {
-            if (!ecosystems.includes("react-native")) {
-              ecosystems.push("react-native");
+          if (existsSync(join(repoPath, 'apps', app, 'app.json'))) {
+            if (!ecosystems.includes('react-native')) {
+              ecosystems.push('react-native');
             }
             break;
           }
@@ -105,15 +98,15 @@ export function detectEcosystems(repoPath: string): Ecosystem[] {
 
   // Python
   if (
-    existsSync(join(repoPath, "pyproject.toml")) ||
-    existsSync(join(repoPath, "requirements.txt"))
+    existsSync(join(repoPath, 'pyproject.toml')) ||
+    existsSync(join(repoPath, 'requirements.txt'))
   ) {
-    ecosystems.push("python");
+    ecosystems.push('python');
   }
 
   // Go
-  if (existsSync(join(repoPath, "go.mod"))) {
-    ecosystems.push("go");
+  if (existsSync(join(repoPath, 'go.mod'))) {
+    ecosystems.push('go');
   }
 
   return ecosystems;
@@ -126,19 +119,19 @@ export function detectEcosystems(repoPath: string): Ecosystem[] {
  * @returns Array of workspace glob patterns
  */
 export function readWorkspaceGlobs(repoPath: string): string[] {
-  const wsFile = join(repoPath, "pnpm-workspace.yaml");
+  const wsFile = join(repoPath, 'pnpm-workspace.yaml');
   if (!existsSync(wsFile)) return [];
 
   try {
-    const content = readFileSync(wsFile, "utf8");
+    const content = readFileSync(wsFile, 'utf8');
     const globs: string[] = [];
 
     // Simple YAML parser for the packages array
-    const lines = content.split("\n");
+    const lines = content.split('\n');
     let inPackages = false;
 
     for (const line of lines) {
-      if (line.trim() === "packages:") {
+      if (line.trim() === 'packages:') {
         inPackages = true;
         continue;
       }
@@ -146,11 +139,7 @@ export function readWorkspaceGlobs(repoPath: string): string[] {
         const match = line.match(/^\s+-\s+['"]?([^'"]+)['"]?\s*$/);
         if (match?.[1]) {
           globs.push(match[1]);
-        } else if (
-          line.trim() &&
-          !line.startsWith("#") &&
-          !line.startsWith(" ")
-        ) {
+        } else if (line.trim() && !line.startsWith('#') && !line.startsWith(' ')) {
           break; // End of packages section
         }
       }
@@ -178,9 +167,9 @@ export function discoverMonorepos(workspaceRoot: string): MonorepoInfo[] {
     const entryPath = join(workspaceRoot, entry);
     return (
       statSync(entryPath).isDirectory() &&
-      !entry.startsWith(".") &&
-      !entry.startsWith("node_modules") &&
-      existsSync(join(entryPath, ".git"))
+      !entry.startsWith('.') &&
+      !entry.startsWith('node_modules') &&
+      existsSync(join(entryPath, '.git'))
     );
   });
 
@@ -195,7 +184,7 @@ export function discoverMonorepos(workspaceRoot: string): MonorepoInfo[] {
       path: repoPath,
       ecosystems,
       workspaces: readWorkspaceGlobs(repoPath),
-      hasTurbo: existsSync(join(repoPath, "turbo.json")),
+      hasTurbo: existsSync(join(repoPath, 'turbo.json')),
       hasGit: true,
     });
   }

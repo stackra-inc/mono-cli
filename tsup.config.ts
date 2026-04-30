@@ -4,12 +4,12 @@
  * @see https://tsup.egoist.dev/
  */
 
-import { basePreset as preset } from "@stackra/tsup-config";
+import { basePreset as preset } from '@stackra/tsup-config';
 
 export default {
-  platform: "node",
+  platform: 'node',
   banner: {
-    js: "#!/usr/bin/env node",
+    js: '#!/usr/bin/env node',
   },
   ...preset,
 };

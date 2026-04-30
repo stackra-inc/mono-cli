@@ -5,10 +5,6 @@
  * @since 1.0.0
  */
 
-export {
-  Command,
-  getCommandMetadata,
-  COMMAND_METADATA,
-} from "./command.decorator";
+export { Command, getCommandMetadata, COMMAND_METADATA } from './command.decorator';
 
-export type { CommandOptions, CommandCategory } from "./command.decorator";
+export type { CommandOptions, CommandCategory } from './command.decorator';

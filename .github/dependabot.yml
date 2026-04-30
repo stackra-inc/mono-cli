@@ -11,15 +11,15 @@ updates:
     groups:
       stackra:
         patterns:
-          - "@stackra/*"
+          - '@stackra/*'
       dev-dependencies:
         dependency-type: development
         exclude-patterns:
-          - "@stackra/*"
+          - '@stackra/*'
       production-dependencies:
         dependency-type: production
         exclude-patterns:
-          - "@stackra/*"
+          - '@stackra/*'
 
   - package-ecosystem: github-actions
     directory: /
@@ -30,4 +30,4 @@ updates:
     groups:
       github-actions:
         patterns:
-          - "*"
+          - '*'

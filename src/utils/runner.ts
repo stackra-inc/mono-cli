@@ -8,8 +8,8 @@
  * @since 1.0.0
  */
 
-import { execa, type Options as ExecaOptions } from "execa";
-import type { CommandResult, MonorepoInfo } from "@/types";
+import { execa, type Options as ExecaOptions } from 'execa';
+import type { CommandResult, MonorepoInfo } from '@/types';
 
 /**
  * Run a shell command in a specific directory.
@@ -25,10 +25,10 @@ import type { CommandResult, MonorepoInfo } from "@/types";
 export async function runCommand(
   command: string,
   cwd: string,
-  options?: ExecaOptions,
+  options?: ExecaOptions
 ): Promise<CommandResult> {
   const start = Date.now();
-  const parts = command.split(" ");
+  const parts = command.split(' ');
   const cmd = parts[0]!;
   const args = parts.slice(1);
 
@@ -43,8 +43,8 @@ export async function runCommand(
     return {
       repo: cwd,
       success: result.exitCode === 0,
-      stdout: String(result.stdout ?? ""),
-      stderr: String(result.stderr ?? ""),
+      stdout: String(result.stdout ?? ''),
+      stderr: String(result.stderr ?? ''),
       exitCode: result.exitCode ?? 0,
       duration: Date.now() - start,
     };
@@ -52,7 +52,7 @@ export async function runCommand(
     return {
       repo: cwd,
       success: false,
-      stdout: "",
+      stdout: '',
       stderr: error.message || String(error),
       exitCode: 1,
       duration: Date.now() - start,
@@ -74,7 +74,7 @@ export async function runCommand(
 export async function runAcrossRepos(
   command: string,
   repos: MonorepoInfo[],
-  onProgress?: (repo: MonorepoInfo, index: number, total: number) => void,
+  onProgress?: (repo: MonorepoInfo, index: number, total: number) => void
 ): Promise<CommandResult[]> {
   const results: CommandResult[] = [];
 
@@ -101,7 +101,7 @@ export async function runAcrossRepos(
  */
 export async function runAcrossReposParallel(
   command: string,
-  repos: MonorepoInfo[],
+  repos: MonorepoInfo[]
 ): Promise<CommandResult[]> {
   const promises = repos.map(async (repo) => {
     const result = await runCommand(command, repo.path);

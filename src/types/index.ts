@@ -16,12 +16,12 @@
  * Supported monorepo ecosystem types.
  * The CLI auto-detects these based on root config files.
  */
-export type Ecosystem = "node" | "php" | "react-native" | "python" | "go";
+export type Ecosystem = 'node' | 'php' | 'react-native' | 'python' | 'go';
 
 /**
  * Cleanup modes supported by the universal cleanup command.
  */
-export type CleanMode = "build" | "cache" | "deps" | "tmp" | "all";
+export type CleanMode = 'build' | 'cache' | 'deps' | 'tmp' | 'all';
 
 // ============================================================================
 // Monorepo & Workspace
@@ -175,7 +175,7 @@ export interface PlatformCommands {
   /** Run linter */
   lint: string;
   /** Fix lint issues */
-  "lint:fix": string;
+  'lint:fix': string;
   /** Format code */
   format: string;
   /** Start dev server */
@@ -205,5 +205,5 @@ export interface SecretEntry {
   /** When the secret was stored */
   createdAt: string;
   /** Source of the secret (manual, gh-cli, glab-cli) */
-  source: "manual" | "gh-cli" | "glab-cli";
+  source: 'manual' | 'gh-cli' | 'glab-cli';
 }

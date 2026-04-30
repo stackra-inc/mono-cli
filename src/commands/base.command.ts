@@ -34,9 +34,9 @@
  * ```
  */
 
-import * as p from "@clack/prompts";
+import * as p from '@clack/prompts';
 
-import type { GlobalOptions } from "@/types";
+import type { GlobalOptions } from '@/types';
 
 /**
  * Abstract base class for all CLI commands.
@@ -121,11 +121,7 @@ export abstract class BaseCommand {
    * @param opts - Global options
    * @param formatter - Human-readable formatter function
    */
-  protected output<T>(
-    data: T,
-    opts: GlobalOptions,
-    formatter: (data: T) => void,
-  ): void {
+  protected output<T>(data: T, opts: GlobalOptions, formatter: (data: T) => void): void {
     if (opts.json) {
       console.log(JSON.stringify(data, null, 2));
     } else {

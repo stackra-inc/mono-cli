@@ -8,9 +8,9 @@
  * @since 1.0.0
  */
 
-import chalk from "chalk";
-import Table from "cli-table3";
-import type { CommandResult, MonorepoInfo, GlobalOptions } from "@/types";
+import chalk from 'chalk';
+import Table from 'cli-table3';
+import type { CommandResult, MonorepoInfo, GlobalOptions } from '@/types';
 
 // ============================================================================
 // Theme Colors
@@ -19,17 +19,17 @@ import type { CommandResult, MonorepoInfo, GlobalOptions } from "@/types";
 /** Stackra brand colors and semantic colors for consistent output. */
 export const theme = {
   /** Primary brand color */
-  primary: chalk.hex("#818cf8"),
+  primary: chalk.hex('#818cf8'),
   /** Success state */
-  success: chalk.hex("#22c55e"),
+  success: chalk.hex('#22c55e'),
   /** Warning state */
-  warning: chalk.hex("#f59e0b"),
+  warning: chalk.hex('#f59e0b'),
   /** Error state */
-  error: chalk.hex("#ef4444"),
+  error: chalk.hex('#ef4444'),
   /** Muted/secondary text */
-  muted: chalk.hex("#6b7280"),
+  muted: chalk.hex('#6b7280'),
   /** Info/accent */
-  info: chalk.hex("#38bdf8"),
+  info: chalk.hex('#38bdf8'),
   /** Bold white for emphasis */
   bold: chalk.bold.white,
   /** Dim text for less important info */
@@ -42,13 +42,13 @@ export const theme = {
 
 /** Unicode symbols for consistent status indicators. */
 export const symbols = {
-  success: theme.success("✔"),
-  error: theme.error("✖"),
-  warning: theme.warning("⚠"),
-  info: theme.info("ℹ"),
-  arrow: theme.muted("→"),
-  bullet: theme.muted("•"),
-  line: theme.muted("─"),
+  success: theme.success('✔'),
+  error: theme.error('✖'),
+  warning: theme.warning('⚠'),
+  info: theme.info('ℹ'),
+  arrow: theme.muted('→'),
+  bullet: theme.muted('•'),
+  line: theme.muted('─'),
 };
 
 // ============================================================================
@@ -77,13 +77,13 @@ export function formatDuration(ms: number): string {
  */
 export function formatEcosystems(ecosystems: string[]): string {
   const colors: Record<string, (s: string) => string> = {
-    node: chalk.hex("#68a063"),
-    php: chalk.hex("#777bb4"),
-    "react-native": chalk.hex("#61dafb"),
-    python: chalk.hex("#3776ab"),
+    node: chalk.hex('#68a063'),
+    php: chalk.hex('#777bb4'),
+    'react-native': chalk.hex('#61dafb'),
+    python: chalk.hex('#3776ab'),
   };
 
-  return ecosystems.map((e) => (colors[e] || chalk.white)(`[${e}]`)).join(" ");
+  return ecosystems.map((e) => (colors[e] || chalk.white)(`[${e}]`)).join(' ');
 }
 
 // ============================================================================
@@ -96,9 +96,9 @@ export function formatEcosystems(ecosystems: string[]): string {
  * @param title - Section title
  */
 export function header(title: string): void {
-  console.log("");
+  console.log('');
   console.log(theme.bold(title));
-  console.log(theme.muted("─".repeat(50)));
+  console.log(theme.muted('─'.repeat(50)));
 }
 
 /**
@@ -118,24 +118,24 @@ export function keyValue(key: string, value: string): void {
  */
 export function printResultsTable(results: CommandResult[]): void {
   const table = new Table({
-    head: [theme.muted("Repo"), theme.muted("Status"), theme.muted("Duration")],
-    style: { head: [], border: ["dim"] },
+    head: [theme.muted('Repo'), theme.muted('Status'), theme.muted('Duration')],
+    style: { head: [], border: ['dim'] },
     chars: {
-      top: "─",
-      "top-mid": "┬",
-      "top-left": "┌",
-      "top-right": "┐",
-      bottom: "─",
-      "bottom-mid": "┴",
-      "bottom-left": "└",
-      "bottom-right": "┘",
-      left: "│",
-      "left-mid": "├",
-      mid: "─",
-      "mid-mid": "┼",
-      right: "│",
-      "right-mid": "┤",
-      middle: "│",
+      top: '─',
+      'top-mid': '┬',
+      'top-left': '┌',
+      'top-right': '┐',
+      bottom: '─',
+      'bottom-mid': '┴',
+      'bottom-left': '└',
+      'bottom-right': '┘',
+      left: '│',
+      'left-mid': '├',
+      mid: '─',
+      'mid-mid': '┼',
+      right: '│',
+      'right-mid': '┤',
+      middle: '│',
     },
   });
 
@@ -158,28 +158,28 @@ export function printResultsTable(results: CommandResult[]): void {
 export function printReposTable(repos: MonorepoInfo[]): void {
   const table = new Table({
     head: [
-      theme.muted("Repo"),
-      theme.muted("Ecosystems"),
-      theme.muted("Workspaces"),
-      theme.muted("Turbo"),
+      theme.muted('Repo'),
+      theme.muted('Ecosystems'),
+      theme.muted('Workspaces'),
+      theme.muted('Turbo'),
     ],
-    style: { head: [], border: ["dim"] },
+    style: { head: [], border: ['dim'] },
     chars: {
-      top: "─",
-      "top-mid": "┬",
-      "top-left": "┌",
-      "top-right": "┐",
-      bottom: "─",
-      "bottom-mid": "┴",
-      "bottom-left": "└",
-      "bottom-right": "┘",
-      left: "│",
-      "left-mid": "├",
-      mid: "─",
-      "mid-mid": "┼",
-      right: "│",
-      "right-mid": "┤",
-      middle: "│",
+      top: '─',
+      'top-mid': '┬',
+      'top-left': '┌',
+      'top-right': '┐',
+      bottom: '─',
+      'bottom-mid': '┴',
+      'bottom-left': '└',
+      'bottom-right': '┘',
+      left: '│',
+      'left-mid': '├',
+      mid: '─',
+      'mid-mid': '┼',
+      right: '│',
+      'right-mid': '┤',
+      middle: '│',
     },
   });
 
@@ -187,7 +187,7 @@ export function printReposTable(repos: MonorepoInfo[]): void {
     table.push([
       theme.bold(r.name),
       formatEcosystems(r.ecosystems),
-      theme.dim(r.workspaces.join(", ") || "—"),
+      theme.dim(r.workspaces.join(', ') || '—'),
       r.hasTurbo ? symbols.success : symbols.error,
     ]);
   }
@@ -202,11 +202,7 @@ export function printReposTable(repos: MonorepoInfo[]): void {
  * @param opts - Global CLI options
  * @param formatter - Function to format data for human-readable output
  */
-export function output<T>(
-  data: T,
-  opts: GlobalOptions,
-  formatter: (data: T) => void,
-): void {
+export function output<T>(data: T, opts: GlobalOptions, formatter: (data: T) => void): void {
   if (opts.json) {
     console.log(JSON.stringify(data, null, 2));
   } else {

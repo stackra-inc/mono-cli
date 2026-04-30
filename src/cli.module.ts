@@ -17,11 +17,11 @@
  * ```
  */
 
-import { Module } from "@stackra/ts-container";
-import { StatusCommand } from "./commands/status.command";
-import { CleanCommand } from "./commands/clean.command";
-import { BuildCommand } from "./commands/build.command";
-import { AboutCommand } from "./commands/about.command";
+import { Module } from '@stackra/ts-container';
+import { StatusCommand } from './commands/status.command';
+import { CleanCommand } from './commands/clean.command';
+import { BuildCommand } from './commands/build.command';
+import { AboutCommand } from './commands/about.command';
 
 /**
  * Root CLI module.

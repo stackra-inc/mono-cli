@@ -25,10 +25,10 @@
  * ```
  */
 
-import "reflect-metadata";
-import { bootstrap } from "./cli.runner.js";
+import 'reflect-metadata';
+import { bootstrap } from './cli.runner.js';
 
 bootstrap().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });
