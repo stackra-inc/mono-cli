@@ -1,5 +1,23 @@
 # @stackra/mono-cli
 
+## 1.1.0 — 2026-04-30
+
+### Added
+
+- 🧹 **Native cleanup** — `mono clean` now runs natively in Node.js, no
+  `cleanup.sh` script needed. Auto-detects ecosystem and removes the right
+  artifacts (dist, node_modules, vendor, .turbo, coverage, etc.)
+- 🏷️ **Short repo aliases** — custom commands use config name as namespace:
+  `mono fe:build`, `mono php:migrate`, `mono rn:ios`. Full repo name works
+  as alias too.
+- 📁 **repo-alias utility** — maps common repo names to short aliases
+
+### Changed
+
+- ♻️ **CleanCommand rewritten** — no longer depends on external shell scripts.
+  Uses `rmSync`, `readdirSync` for recursive cleanup with depth limits.
+- 🔧 **Module loader** — checks `.mjs` first, then `.ts`, then `.js`
+
 ## 1.0.3 — 2026-04-30
 
 ### Fixed

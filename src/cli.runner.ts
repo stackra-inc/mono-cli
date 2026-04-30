@@ -85,7 +85,7 @@ export async function bootstrap(): Promise<void> {
   program
     .name('mono')
     .description('⬡ Stackra — Universal Monorepo CLI')
-    .version('1.0.3', '-v, --version')
+    .version('1.1.0', '-v, --version')
     .option('--json', 'Output results as JSON', false)
     .option('--no-interactive', 'Disable interactive prompts (for CI)')
     .option('-r, --repo <repos...>', 'Target specific repo(s)')
@@ -149,8 +149,11 @@ export async function bootstrap(): Promise<void> {
     }));
 
     for (const { repo, config } of configs) {
+      // Use the config name (short) as the namespace, with full repo name as alias
+      const namespace = config.name; // e.g., "fe", "php", "rn"
+
       for (const customCmd of config.commands) {
-        registerCustomCommand(program, repo.name, customCmd, getGlobalOpts);
+        registerCustomCommand(program, namespace, repo.name, customCmd, getGlobalOpts);
       }
     }
   } catch {
@@ -162,29 +165,42 @@ export async function bootstrap(): Promise<void> {
 }
 
 /**
- * Register a custom command from a monorepo's mono.config.ts.
+ * Register a custom command from a monorepo's mono.config.mjs.
  *
- * Custom commands are namespaced as `mono <repo>:<command>`.
+ * Custom commands use the config's short name as namespace:
+ * `mono fe:build`, `mono php:migrate`, `mono rn:ios`
+ *
+ * Also registers the full repo name as an alias:
+ * `mono frontend-monorepo:build` works too.
  *
  * @param program - The Commander program instance
- * @param repoName - Name of the monorepo
+ * @param namespace - Short namespace from config.name (e.g., "fe", "php", "rn")
+ * @param repoName - Full monorepo directory name
  * @param customCmd - Custom command definition
  * @param getOpts - Function to extract global options
  */
 function registerCustomCommand(
   program: InstanceType<typeof Program>,
+  namespace: string,
   repoName: string,
   customCmd: CustomCommand,
   getOpts: () => GlobalOptions
 ): void {
+  const shortName = `${namespace}:${customCmd.name}`;
   const fullName = `${repoName}:${customCmd.name}`;
   const emoji = customCmd.emoji || '🔌';
 
-  const cmd = program.command(fullName).description(`${emoji}  ${customCmd.description}`);
+  const cmd = program.command(shortName).description(`${emoji}  ${customCmd.description}`);
 
+  // Add full repo name as alias (so both work)
+  if (shortName !== fullName) {
+    cmd.alias(fullName);
+  }
+
+  // Add custom aliases with namespace prefix
   if (customCmd.aliases) {
     for (const alias of customCmd.aliases) {
-      cmd.alias(`${repoName}:${alias}`);
+      cmd.alias(`${namespace}:${alias}`);
     }
   }
 
